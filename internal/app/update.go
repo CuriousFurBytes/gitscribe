@@ -293,8 +293,20 @@ func (m *Model) updateOperationResult(msg operationResultMsg, cmds []tea.Cmd) (t
 					cmds = append(cmds, loadRepoCmd(m.repo.Root))
 				}
 				return m, tea.Batch(cmds...)
+			case "browser":
+				m.screen = msg.successReturnTo
+				if err := openURLInBrowser(msg.prURL); err != nil {
+					logger.Error("open browser failed", "err", err)
+					m.notice = "Could not open browser: " + err.Error()
+				} else {
+					m.notice = "Opened PR in browser: " + msg.prURL
+				}
+				if msg.refreshRepo {
+					cmds = append(cmds, loadRepoCmd(m.repo.Root))
+				}
+				return m, tea.Batch(cmds...)
 			}
-			// "browser" and "none" fall through to default behavior below.
+			// "none" falls through to default behavior below.
 		}
 		if m.cfg.Logs.AutoCloseOnSuccess && !msg.alwaysModal {
 			m.closeModal()

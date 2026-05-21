@@ -1,11 +1,35 @@
 package app
 
 import (
+	"fmt"
+	"os/exec"
+	"runtime"
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
+
+// openURLInBrowser opens the given URL in the user's default browser. It is
+// a package-level variable so it can be swapped out in tests.
+var openURLInBrowser = defaultOpenURLInBrowser
+
+func defaultOpenURLInBrowser(url string) error {
+	url = strings.TrimSpace(url)
+	if url == "" {
+		return fmt.Errorf("empty URL")
+	}
+	var cmd *exec.Cmd
+	switch runtime.GOOS {
+	case "darwin":
+		cmd = exec.Command("open", url)
+	case "windows":
+		cmd = exec.Command("cmd", "/c", "start", "", url)
+	default:
+		cmd = exec.Command("xdg-open", url)
+	}
+	return cmd.Start()
+}
 
 // openPRURLModal opens a modal displaying the URL of a freshly-created pull
 // request. The modal is dismissed via Esc or Enter.

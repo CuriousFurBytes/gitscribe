@@ -83,6 +83,37 @@ func TestOperationResultShowsPRURLModalWhenConfigured(t *testing.T) {
 	}
 }
 
+func TestOperationResultOpensBrowserWhenConfigured(t *testing.T) {
+	cfg := config.Defaults()
+	cfg.Logs.AutoCloseOnSuccess = true
+	cfg.PullRequest.AfterCreate = "browser"
+	m := newReadyTestModelWithConfig(cfg)
+
+	var openedURL string
+	prev := openURLInBrowser
+	openURLInBrowser = func(url string) error {
+		openedURL = url
+		return nil
+	}
+	t.Cleanup(func() { openURLInBrowser = prev })
+
+	msg := operationResultMsg{
+		title:           "Pull request",
+		success:         true,
+		successReturnTo: screenMain,
+		clearPR:         true,
+		prURL:           "https://github.com/owner/repo/pull/123",
+	}
+	m.updateOperationResult(msg, nil)
+
+	if openedURL != "https://github.com/owner/repo/pull/123" {
+		t.Fatalf("expected browser opener to receive PR URL, got %q", openedURL)
+	}
+	if m.modal.visible && m.modal.kind == modalPRURL {
+		t.Fatalf("expected no PR URL modal when after_create=browser")
+	}
+}
+
 func TestOperationResultSkipsModalWhenAfterCreateNone(t *testing.T) {
 	cfg := config.Defaults()
 	cfg.Logs.AutoCloseOnSuccess = true
