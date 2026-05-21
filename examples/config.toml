@@ -71,8 +71,20 @@ enabled = true
 command_template = ["claude", "--model", "{model}", "-p"]
 model = "sonnet"
 mode = "title_and_body"           # title_and_body | title_only
-style = "formal"                  # formal | neutral | fun
-message_format = "conventional"   # conventional | emoji | normal
+# style controls the tone of generated commit / PR messages.
+#   formal     - professional, neutral voice (default)
+#   neutral    - matter-of-fact, no flavour
+#   fun        - light and playful, still informative
+#   concise    - short, imperative; body omitted when possible
+#   detailed   - thorough, multi-bullet body covering motivation and impact
+#   friendly   - warm, plain-language, approachable to non-experts
+#   technical  - precise jargon, exact identifiers and components
+#   changelog  - release-note style with Added / Changed / Fixed sections
+style = "formal"
+# message_format controls the title format. "gitmoji" is an alias of
+# "emoji"; "plain" is an alias of "normal" and applies no extra rules.
+#   conventional | emoji | gitmoji | normal | plain
+message_format = "conventional"
 prompt_complement = ""
 max_diff_bytes = 120000
 per_file_chunk_bytes = 30000

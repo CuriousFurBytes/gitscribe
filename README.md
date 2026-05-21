@@ -211,6 +211,11 @@ GitScribe sends JSON to the configured external command on stdin:
 }
 ```
 
+`style` is one of: `formal`, `neutral`, `fun`, `concise`, `detailed`,
+`friendly`, `technical`, `changelog`. `message_format` is one of:
+`conventional`, `emoji`, `gitmoji`, `normal`, `plain` (`gitmoji` is an
+alias of `emoji`; `plain` is an alias of `normal`).
+
 The command must return JSON on stdout:
 
 ```json
