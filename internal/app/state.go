@@ -34,14 +34,15 @@ const (
 type modalKind string
 
 const (
-	modalNone     modalKind = ""
-	modalHelp     modalKind = "help"
-	modalLogs     modalKind = "logs"
-	modalHooks    modalKind = "hooks"
-	modalShell    modalKind = "shell"
-	modalStash    modalKind = "stash"
-	modalWorktree modalKind = "worktree"
-	modalPRURL    modalKind = "pr_url"
+	modalNone             modalKind = ""
+	modalHelp             modalKind = "help"
+	modalLogs             modalKind = "logs"
+	modalHooks            modalKind = "hooks"
+	modalShell            modalKind = "shell"
+	modalStash            modalKind = "stash"
+	modalWorktree         modalKind = "worktree"
+	modalPRURL            modalKind = "pr_url"
+	modalBranchSeriesDiff modalKind = "branch_series_diff"
 )
 
 type confirmAction string
@@ -334,5 +335,10 @@ type stashDiffLoadedMsg struct {
 
 type prListLoadedMsg struct {
 	entries []ghcli.PullRequestSummary
+	err     error
+}
+
+type branchSeriesDiffLoadedMsg struct {
+	content string
 	err     error
 }

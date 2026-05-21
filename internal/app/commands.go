@@ -295,6 +295,13 @@ func loadOpenPRsCmd(repoRoot string, limit int) tea.Cmd {
 	})
 }
 
+func loadBranchSeriesDiffCmd(repoRoot string) tea.Cmd {
+	return withTimeout(30*time.Second, func(ctx context.Context) tea.Msg {
+		content, err := git.LoadBranchSeriesDiff(ctx, repoRoot)
+		return branchSeriesDiffLoadedMsg{content: content, err: err}
+	})
+}
+
 func loadPRTemplateCmd(repoRoot string, customPath string) tea.Cmd {
 	return withTimeout(20*time.Second, func(ctx context.Context) tea.Msg {
 		_, body, err := templates.DiscoverPRTemplate(repoRoot, customPath)

@@ -46,6 +46,8 @@ func (m *Model) handleModalKey(msg tea.KeyMsg, cmds []tea.Cmd) (tea.Model, tea.C
 		return m.handleWorktreeModalKey(msg, cmds)
 	case modalPRURL:
 		return m.handlePRURLModalKey(msg, cmds)
+	case modalBranchSeriesDiff:
+		return m.handleBranchSeriesDiffModalKey(msg, cmds)
 	}
 	return m, tea.Batch(cmds...)
 }

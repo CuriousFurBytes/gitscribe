@@ -176,6 +176,14 @@ func (m *Model) handleForm(msg tea.Msg, cmds []tea.Cmd, current screen, form *fo
 				return m, tea.Batch(cmds...)
 			}
 
+		case msg.Type == tea.KeyCtrlD:
+			if current == screenPR {
+				logger.Info("open branch series diff modal")
+				m.openBranchSeriesDiffModal()
+				cmds = append(cmds, loadBranchSeriesDiffCmd(m.repo.Root))
+				return m, tea.Batch(cmds...)
+			}
+
 		case m.matchesKeybinding(config.ActionSubmit, msg):
 			return m.submitForm(cmds, current, form)
 

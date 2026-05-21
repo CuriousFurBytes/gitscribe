@@ -68,6 +68,8 @@ func (m *Model) renderModal() string {
 		return m.renderWorktreeModal()
 	case modalPRURL:
 		return m.renderPRURLModal()
+	case modalBranchSeriesDiff:
+		return m.renderBranchSeriesDiffModal()
 	default:
 		return m.renderScrollableModal()
 	}

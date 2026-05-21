@@ -59,6 +59,9 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, tea.Batch(cmds...)
 	case prListLoadedMsg:
 		return m.updatePRListLoaded(msg, cmds)
+	case branchSeriesDiffLoadedMsg:
+		m.setBranchSeriesDiffContent(msg.content, msg.err)
+		return m, tea.Batch(cmds...)
 	case stashDiffLoadedMsg:
 		if msg.err != nil {
 			m.stashViewport.SetContent("Could not load stash diff: " + msg.err.Error())
