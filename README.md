@@ -11,6 +11,20 @@ GitScribe is a keyboard-first Git terminal UI written in Go with Bubble Tea. It 
 
 ## Installation
 
+### `go install`
+
+```bash
+go install github.com/CuriousFurBytes/gitscribe/cmd/gitscribe@latest
+```
+
+This drops a `gitscribe` binary into `$(go env GOBIN)` (or `$(go env GOPATH)/bin`). Make sure that directory is on your `PATH`.
+
+### Prebuilt binaries
+
+Download the archive for your OS/arch from the [latest GitHub Release](https://github.com/CuriousFurBytes/gitscribe/releases/latest), extract it, and move the `gitscribe` binary onto your `PATH`.
+
+### Build from source
+
 ```bash
 git clone https://github.com/CuriousFurBytes/gitscribe.git
 cd gitscribe
