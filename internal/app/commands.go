@@ -218,6 +218,7 @@ func pushCmd(repoRoot string) tea.Cmd {
 			success:         err == nil,
 			successReturnTo: screenMain,
 			failureReturnTo: screenMain,
+			refreshRepo:     true,
 			err:             err,
 		}
 	})

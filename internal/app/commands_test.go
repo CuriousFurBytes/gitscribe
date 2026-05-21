@@ -124,6 +124,18 @@ func TestPushCmd(t *testing.T) {
 	}
 }
 
+func TestPushCmdRefreshesRepoStatus(t *testing.T) {
+	dir := mustGit(t)
+	msg := runCmd(t, pushCmd(dir))
+	result, ok := msg.(operationResultMsg)
+	if !ok {
+		t.Fatalf("expected operationResultMsg, got %T", msg)
+	}
+	if !result.refreshRepo {
+		t.Fatalf("expected pushCmd to set refreshRepo=true so ahead/behind counts reload after push")
+	}
+}
+
 func TestPullCmd(t *testing.T) {
 	dir := mustGit(t)
 	msg := runCmd(t, pullCmd(dir))
