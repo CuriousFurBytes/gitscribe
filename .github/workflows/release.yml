@@ -18,6 +18,16 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Decide first Go release
+        id: bootstrap
+        if: github.ref == 'refs/heads/main'
+        run: |
+          # The Python CLI line ends at v0.0.6. The Go rewrite jumps to v0.1.0;
+          # after that, fall back to default semver patch bumps.
+          if git tag -l 'v*' | sort -V | tail -n1 | grep -qE '^v0\.0\.'; then
+            echo "custom_tag=v0.1.0" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Bump tag
         id: tag
         if: github.ref == 'refs/heads/main'
@@ -28,6 +38,7 @@ jobs:
           DEFAULT_BUMP: patch
           INITIAL_VERSION: 0.1.0
           TAG_CONTEXT: repo
+          CUSTOM_TAG: ${{ steps.bootstrap.outputs.custom_tag }}
 
       - name: Skip release if no new tag
         id: gate
