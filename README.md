@@ -81,9 +81,15 @@ gitscribe --no-animation        # disable startup animation
 | `Ctrl+E` | Regenerate AI with feedback (opens inline input) |
 | `Ctrl+L` | Clear title and body |
 | `Ctrl+W` | Toggle `--no-verify` (commit only) |
+| `Ctrl+D` | Show branch series diff modal (PR screen only) |
 | `Tab` | Switch focus between title and body |
 | `Esc` | Cancel and return to main |
 | `Ctrl+?` | Help |
+
+On the PR screen, `Ctrl+D` opens a scrollable modal showing the cumulative
+diff of the current branch against its base (`git diff
+origin/<base>...HEAD`). The base is detected from
+`refs/remotes/origin/HEAD` and the output is capped at 1 MiB.
 
 ### Stash screen
 
