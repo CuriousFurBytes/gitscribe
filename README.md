@@ -152,7 +152,14 @@ The fetch limit is configurable via `pull_request.list_limit` (default 50).
 ### Branch management
 
 - Press `b` or `Ctrl+B` to open the branch selector.
-- In the branch selector, press `n` to create a new branch based on the currently selected branch.
+- Start typing to filter the branch list (case-insensitive substring match);
+  `Backspace` removes characters, `Esc` clears the filter (and a second `Esc`
+  closes the selector).
+- Arrow keys navigate the filtered list (typing letters extends the filter
+  instead of acting as `j`/`k` motion); `Enter` switches to the highlighted
+  branch.
+- In the branch selector, press `Ctrl+N` to create a new branch based on the
+  currently highlighted branch (previously bound to `n`).
 - The branch selector is available from the main screen, history screen, and stash screen.
 
 ### Stash management
