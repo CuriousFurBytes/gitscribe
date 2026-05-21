@@ -12,19 +12,15 @@ GitScribe is a keyboard-first Git terminal UI written in Go with Bubble Tea. It 
 ## Installation
 
 ```bash
-go install github.com/CuriousFurBytes/gitscribe/cmd/gitscribe@latest
+go install github.com/CuriousFurBytes/gitscribe@latest
 ```
-
-The module's `main` package lives at `./cmd/gitscribe`, so the install path must
-include that suffix — `go install github.com/CuriousFurBytes/gitscribe@latest`
-will fail with "module found … but does not contain package".
 
 To build from source:
 
 ```bash
 git clone https://github.com/CuriousFurBytes/gitscribe.git
 cd gitscribe
-go build ./cmd/gitscribe
+go build .
 ```
 
 Run it from inside a Git repository:
