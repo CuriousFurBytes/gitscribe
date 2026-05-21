@@ -6,7 +6,7 @@ before:
 
 builds:
   - id: gitscribe
-    main: ./cmd/gitscribe
+    main: .
     binary: gitscribe
     env:
       - CGO_ENABLED=0

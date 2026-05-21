@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-GitScribe is a keyboard-first Git TUI written in Go (`github.com/CuriousFurBytes/gitscribe`). Built on Bubble Tea / Charm. Provides status, diffs, history, commit authoring, PR creation, and optional AI-assisted message generation. Single binary from `cmd/gitscribe/main.go`. Requires Go 1.21+.
+GitScribe is a keyboard-first Git TUI written in Go (`github.com/CuriousFurBytes/gitscribe`). Built on Bubble Tea / Charm. Provides status, diffs, history, commit authoring, PR creation, and optional AI-assisted message generation. Single binary from `main.go` at the module root. Requires Go 1.21+.
 
 ## Setup
 
@@ -16,7 +16,7 @@ Runtime requirements: `git`, `gh` (for PR creation), an AI CLI command (e.g. `cl
 
 ```bash
 # Build
-go build -o gitscribe ./cmd/gitscribe
+go build -o gitscribe .
 
 # Test (default — run before every commit)
 go test ./...
@@ -59,7 +59,7 @@ go vet ./...
 
 ## Architecture Notes
 
-- Entry: `cmd/gitscribe/main.go` → detects repo via `internal/repo`, loads config via `internal/config`, starts Bubble Tea with `internal/app.Model`.
+- Entry: `main.go` (repo root) → detects repo via `internal/repo`, loads config via `internal/config`, starts Bubble Tea with `internal/app.Model`.
 - TUI: `internal/app/model.go` holds `*Model`; `update.go` dispatches; `*_screen.go` / `*_modal.go` render. Screen constants in `screens.go`.
 - Git ops: `internal/git/service.go` shells out; `internal/execx/command.go` is the subprocess helper.
 - AI: `internal/ai/service.go` builds prompt, shells out to configured command, parses JSON response.
