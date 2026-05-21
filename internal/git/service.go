@@ -38,6 +38,12 @@ func LoadStatus(ctx context.Context, repoRoot string) (RepoStatus, error) {
 		}
 		status.StagedStats = stats
 	}
+	if status.Ahead > 0 {
+		commits, commitsErr := LoadBranchCommits(ctx, repoRoot, DefaultBranchCommitsLimit)
+		if commitsErr == nil {
+			status.BranchCommits = commits
+		}
+	}
 	return status, nil
 }
 

@@ -301,6 +301,54 @@ func TestPRScreenOmitsStagedDiffStats(t *testing.T) {
 	}
 }
 
+func TestPRScreenShowsBranchCommits(t *testing.T) {
+	m := newReadyTestModel()
+	m.screen = screenPR
+	m.status.RepoStatus.BranchCommits = []git.CommitSummary{
+		{ShortSHA: "abc1234", Subject: "feat: add thing"},
+		{ShortSHA: "def5678", Subject: "fix: a bug"},
+	}
+	out := m.renderPRScreen()
+	if !strings.Contains(out, "abc1234") {
+		t.Fatalf("expected short SHA abc1234 in PR screen, got: %s", out)
+	}
+	if !strings.Contains(out, "feat: add thing") {
+		t.Fatalf("expected subject in PR screen, got: %s", out)
+	}
+	if !strings.Contains(out, "def5678") {
+		t.Fatalf("expected short SHA def5678 in PR screen, got: %s", out)
+	}
+	if !strings.Contains(out, "fix: a bug") {
+		t.Fatalf("expected subject in PR screen, got: %s", out)
+	}
+}
+
+func TestPRScreenOmitsBranchCommitsWhenEmpty(t *testing.T) {
+	m := newReadyTestModel()
+	m.screen = screenPR
+	m.status.RepoStatus.BranchCommits = nil
+	out := m.renderPRScreen()
+	// The "Commits" header should only appear when there are commits to list.
+	if strings.Contains(out, "Commits in this PR") {
+		t.Fatalf("did not expect commits header when BranchCommits is empty, got: %s", out)
+	}
+}
+
+func TestCommitScreenOmitsBranchCommits(t *testing.T) {
+	m := newReadyTestModel()
+	m.screen = screenCommit
+	m.status.RepoStatus.BranchCommits = []git.CommitSummary{
+		{ShortSHA: "abc1234", Subject: "feat: add thing"},
+	}
+	out := m.renderCommitScreen()
+	if strings.Contains(out, "abc1234") {
+		t.Fatalf("did not expect branch commit list in commit screen, got: %s", out)
+	}
+	if strings.Contains(out, "Commits in this PR") {
+		t.Fatalf("did not expect commits header in commit screen, got: %s", out)
+	}
+}
+
 func TestDirectModeOptionsCommit(t *testing.T) {
 	cfg := config.Defaults()
 	cfg.Logs.AutoCloseOnSuccess = false

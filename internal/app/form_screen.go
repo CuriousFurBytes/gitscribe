@@ -59,6 +59,11 @@ func (m *Model) renderForm(title string, form formState, current screen, allowAI
 	footerRight := lipgloss.NewStyle().Width(max(0, formWidth-spinnerWidth)).Align(lipgloss.Right).Render(shortcutsStr)
 	footer := spinnerStr + footerRight
 	lines := []string{titleSection, "", bodySection}
+	if current == screenPR {
+		if section := m.renderBranchCommitsSection(muted); section != "" {
+			lines = append(lines, "", section)
+		}
+	}
 	if form.FeedbackInputVisible {
 		feedbackLabel := muted.Render("Feedback for AI (Enter to confirm, Esc to cancel):")
 		lines = append(lines, "", feedbackLabel, form.FeedbackInput.View())
@@ -71,6 +76,25 @@ func (m *Model) renderForm(title string, form formState, current screen, allowAI
 		lines = append(lines, m.styles.Error(form.Error))
 	}
 	return lipgloss.Place(m.width, m.height, lipgloss.Center, lipgloss.Center, lipgloss.JoinVertical(lipgloss.Left, lines...))
+}
+
+// renderBranchCommitsSection renders the list of commits that would be
+// included in a pull request (commits on the current branch not yet on
+// the base branch). It returns an empty string when there are no
+// commits to list.
+func (m *Model) renderBranchCommitsSection(muted lipgloss.Style) string {
+	commits := m.status.RepoStatus.BranchCommits
+	if len(commits) == 0 {
+		return ""
+	}
+	header := muted.Render(fmt.Sprintf("Commits in this PR (%d)", len(commits)))
+	rows := make([]string, 0, len(commits)+1)
+	rows = append(rows, header)
+	shaStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#888888"))
+	for _, c := range commits {
+		rows = append(rows, fmt.Sprintf("%s  %s", shaStyle.Render(c.ShortSHA), c.Subject))
+	}
+	return lipgloss.JoinVertical(lipgloss.Left, rows...)
 }
 
 func (m *Model) handleForm(msg tea.Msg, cmds []tea.Cmd, current screen, form *formState, allowAI bool) (tea.Model, tea.Cmd) {

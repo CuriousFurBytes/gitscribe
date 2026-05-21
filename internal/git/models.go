@@ -23,6 +23,7 @@ type RepoStatus struct {
 	HasUntracked   bool
 	Files          []FileChange
 	StagedStats    DiffStats
+	BranchCommits  []CommitSummary
 }
 
 type FileChange struct {
