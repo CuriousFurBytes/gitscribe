@@ -109,6 +109,7 @@ type GitConfig struct {
 type CommitConfig struct {
 	RequireConfirmation bool `toml:"require_confirmation"`
 	BodyWrapWidth       int  `toml:"body_wrap_width"`
+	TitleMaxLength      int  `toml:"title_max_length"`
 }
 
 type AIConfig struct {
@@ -127,10 +128,11 @@ type AIConfig struct {
 }
 
 type PullRequestConfig struct {
-	Enabled      bool     `toml:"enabled"`
-	DefaultBase  string   `toml:"default_base"`
-	TemplatePath string   `toml:"template_path"`
-	GHArgs       []string `toml:"gh_args"`
+	Enabled        bool     `toml:"enabled"`
+	DefaultBase    string   `toml:"default_base"`
+	TemplatePath   string   `toml:"template_path"`
+	GHArgs         []string `toml:"gh_args"`
+	TitleMaxLength int      `toml:"title_max_length"`
 }
 
 type HistoryConfig struct {
@@ -299,6 +301,7 @@ func Defaults() Config {
 		Commit: CommitConfig{
 			RequireConfirmation: true,
 			BodyWrapWidth:       72,
+			TitleMaxLength:      72,
 		},
 		AI: AIConfig{
 			Enabled:           true,
@@ -313,10 +316,11 @@ func Defaults() Config {
 			OutputFormat:      "json",
 		},
 		PullRequest: PullRequestConfig{
-			Enabled:      true,
-			DefaultBase:  "",
-			TemplatePath: "",
-			GHArgs:       []string{"--assignee", "@me"},
+			Enabled:        true,
+			DefaultBase:    "",
+			TemplatePath:   "",
+			GHArgs:         []string{"--assignee", "@me"},
+			TitleMaxLength: 72,
 		},
 		History: HistoryConfig{
 			MaxCommits: 200,
@@ -392,6 +396,12 @@ func Validate(cfg Config) error {
 	}
 	if cfg.Commit.BodyWrapWidth < 20 {
 		return fmt.Errorf("commit.body_wrap_width must be at least 20")
+	}
+	if cfg.Commit.TitleMaxLength < 20 {
+		return fmt.Errorf("commit.title_max_length must be at least 20")
+	}
+	if cfg.PullRequest.TitleMaxLength < 20 {
+		return fmt.Errorf("pull_request.title_max_length must be at least 20")
 	}
 	if cfg.AI.Enabled {
 		if len(cfg.AI.CommandTemplate) == 0 {

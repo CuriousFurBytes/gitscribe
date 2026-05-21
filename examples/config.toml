@@ -65,6 +65,7 @@ editor_command = ""               # override $EDITOR for Raw tab (e.g. "nvim", "
 [commit]
 require_confirmation = true
 body_wrap_width = 72
+title_max_length = 72             # max chars for commit subject (min 20)
 
 [ai]
 enabled = true
@@ -85,6 +86,7 @@ enabled = true
 default_base = ""
 template_path = ""
 gh_args = ["--assignee", "@me"]
+title_max_length = 72             # max chars for PR title (min 20)
 
 [history]
 max_commits = 200

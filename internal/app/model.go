@@ -26,8 +26,8 @@ func New(cfg config.Config, repoInfo repo.Info, opts Options) *Model {
 		FPS:    time.Second / 10,
 	}
 
-	commitForm := newForm("Commit title", "Commit body", 72)
-	prForm := newForm("PR title", "PR body", 120)
+	commitForm := newForm("Commit title", "Commit body", cfg.Commit.TitleMaxLength)
+	prForm := newForm("PR title", "PR body", cfg.PullRequest.TitleMaxLength)
 	shellInput := textinput.New()
 	shellInput.Prompt = "$ "
 	shellInput.Placeholder = "git status"

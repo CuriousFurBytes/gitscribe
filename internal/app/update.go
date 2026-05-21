@@ -271,11 +271,11 @@ func (m *Model) updateOperationResult(msg operationResultMsg, cmds []tea.Cmd) (t
 		logger.Info("operation succeeded", "title", msg.title)
 		m.notice = ""
 		if msg.clearCommit {
-			m.commitForm = newForm("Commit title", "Commit body", 72)
+			m.commitForm = newForm("Commit title", "Commit body", m.cfg.Commit.TitleMaxLength)
 			m.amendMode = false
 		}
 		if msg.clearPR {
-			m.prForm = newForm("PR title", "PR body", 120)
+			m.prForm = newForm("PR title", "PR body", m.cfg.PullRequest.TitleMaxLength)
 		}
 		if msg.clearCommit || msg.clearPR {
 			m.persistDraft()
