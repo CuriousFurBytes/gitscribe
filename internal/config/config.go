@@ -131,6 +131,10 @@ type PullRequestConfig struct {
 	DefaultBase  string   `toml:"default_base"`
 	TemplatePath string   `toml:"template_path"`
 	GHArgs       []string `toml:"gh_args"`
+	// AfterCreate controls what happens once `gh pr create` succeeds.
+	// One of: "modal" (show URL in a modal), "browser" (open in browser),
+	// or "none" (do nothing extra). Defaults to "modal".
+	AfterCreate string `toml:"after_create"`
 }
 
 type HistoryConfig struct {
@@ -317,6 +321,7 @@ func Defaults() Config {
 			DefaultBase:  "",
 			TemplatePath: "",
 			GHArgs:       []string{"--assignee", "@me"},
+			AfterCreate:  "modal",
 		},
 		History: HistoryConfig{
 			MaxCommits: 200,
@@ -412,6 +417,9 @@ func Validate(cfg Config) error {
 		if cfg.AI.MaxDiffBytes <= 0 || cfg.AI.PerFileChunkBytes <= 0 {
 			return fmt.Errorf("ai diff byte limits must be positive")
 		}
+	}
+	if err := validateOneOf("pull_request.after_create", cfg.PullRequest.AfterCreate, "modal", "browser", "none"); err != nil {
+		return err
 	}
 	allowedGHFlags := map[string]bool{
 		"--assignee": true, "--reviewer": true, "--label": true,

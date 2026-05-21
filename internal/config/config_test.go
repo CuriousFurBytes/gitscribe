@@ -207,6 +207,31 @@ func TestDefaultKeybindingsHasCtrlBForBranches(t *testing.T) {
 	t.Fatalf("expected ctrl+b in ActionOpenBranches keybindings, got %v", keys)
 }
 
+func TestDefaultsPullRequestAfterCreateIsModal(t *testing.T) {
+	cfg := Defaults()
+	if cfg.PullRequest.AfterCreate != "modal" {
+		t.Fatalf("expected default pull_request.after_create = %q, got %q", "modal", cfg.PullRequest.AfterCreate)
+	}
+}
+
+func TestValidateAcceptsAllAfterCreateValues(t *testing.T) {
+	for _, v := range []string{"modal", "browser", "none"} {
+		cfg := Defaults()
+		cfg.PullRequest.AfterCreate = v
+		if err := Validate(cfg); err != nil {
+			t.Fatalf("expected after_create=%q to validate, got %v", v, err)
+		}
+	}
+}
+
+func TestValidateRejectsInvalidAfterCreate(t *testing.T) {
+	cfg := Defaults()
+	cfg.PullRequest.AfterCreate = "telegram"
+	if err := Validate(cfg); err == nil {
+		t.Fatalf("expected invalid pull_request.after_create to fail validation")
+	}
+}
+
 func TestValidateAcceptsNewKeybindingActions(t *testing.T) {
 	cfg := Defaults()
 	cfg.Keybindings = map[string][]string{
