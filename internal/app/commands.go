@@ -257,6 +257,10 @@ func commitCmd(repoRoot string, title string, body string, noVerify bool) tea.Cm
 func createPRCmd(repoRoot string, cfg config.PullRequestConfig, title string, body string) tea.Cmd {
 	return withTimeout(90*time.Second, func(ctx context.Context) tea.Msg {
 		result, err := ghcli.CreatePR(ctx, repoRoot, cfg, strings.TrimSpace(title), strings.TrimRight(body, "\n"))
+		prURL := ""
+		if err == nil {
+			prURL = ghcli.ParsePRURL(result.Stdout)
+		}
 		return operationResultMsg{
 			title:           "Pull request",
 			output:          result.Output(),
@@ -264,6 +268,7 @@ func createPRCmd(repoRoot string, cfg config.PullRequestConfig, title string, bo
 			successReturnTo: screenMain,
 			failureReturnTo: screenPR,
 			clearPR:         err == nil,
+			prURL:           prURL,
 			err:             err,
 		}
 	})

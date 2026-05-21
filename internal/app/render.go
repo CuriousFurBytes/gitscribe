@@ -61,6 +61,8 @@ func (m *Model) renderModal() string {
 		return m.renderStashModal()
 	case modalWorktree:
 		return m.renderWorktreeModal()
+	case modalPRURL:
+		return m.renderPRURLModal()
 	default:
 		return m.renderScrollableModal()
 	}

@@ -39,6 +39,7 @@ const (
 	modalShell    modalKind = "shell"
 	modalStash    modalKind = "stash"
 	modalWorktree modalKind = "worktree"
+	modalPRURL    modalKind = "pr_url"
 )
 
 type confirmAction string
@@ -231,6 +232,7 @@ type operationResultMsg struct {
 	clearPR         bool
 	alwaysModal     bool
 	modalKind       modalKind
+	prURL           string
 	err             error
 }
 

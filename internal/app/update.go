@@ -283,6 +283,19 @@ func (m *Model) updateOperationResult(msg operationResultMsg, cmds []tea.Cmd) (t
 		if m.directMode && (msg.clearCommit || msg.clearPR) {
 			return m, tea.Quit
 		}
+		// PR-create success: honor pull_request.after_create policy.
+		if msg.prURL != "" {
+			switch m.cfg.PullRequest.AfterCreate {
+			case "modal":
+				m.screen = msg.successReturnTo
+				m.openPRURLModal(msg.prURL)
+				if msg.refreshRepo {
+					cmds = append(cmds, loadRepoCmd(m.repo.Root))
+				}
+				return m, tea.Batch(cmds...)
+			}
+			// "browser" and "none" fall through to default behavior below.
+		}
 		if m.cfg.Logs.AutoCloseOnSuccess && !msg.alwaysModal {
 			m.closeModal()
 			m.screen = msg.successReturnTo
