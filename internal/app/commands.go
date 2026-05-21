@@ -288,6 +288,13 @@ func aiCmd(repoRoot string, status git.RepoStatus, cfg config.AIConfig, current 
 	})
 }
 
+func loadOpenPRsCmd(repoRoot string, limit int) tea.Cmd {
+	return withTimeout(30*time.Second, func(ctx context.Context) tea.Msg {
+		entries, err := ghcli.ListOpenPullRequests(ctx, repoRoot, limit)
+		return prListLoadedMsg{entries: entries, err: err}
+	})
+}
+
 func loadPRTemplateCmd(repoRoot string, customPath string) tea.Cmd {
 	return withTimeout(20*time.Second, func(ctx context.Context) tea.Msg {
 		_, body, err := templates.DiscoverPRTemplate(repoRoot, customPath)

@@ -11,6 +11,7 @@ import (
 	"github.com/CuriousFurBytes/gitscribe/internal/ai"
 	"github.com/CuriousFurBytes/gitscribe/internal/config"
 	"github.com/CuriousFurBytes/gitscribe/internal/git"
+	ghcli "github.com/CuriousFurBytes/gitscribe/internal/github"
 	"github.com/CuriousFurBytes/gitscribe/internal/repo"
 	"github.com/CuriousFurBytes/gitscribe/internal/theme"
 )
@@ -27,6 +28,7 @@ const (
 	screenPR      screen = "pr"
 	screenLogs    screen = "logs"
 	screenStash   screen = "stash"
+	screenPRList  screen = "pr_list"
 )
 
 type modalKind string
@@ -205,6 +207,9 @@ type Model struct {
 	stashIndex    int
 	stashViewport viewport.Model
 
+	prList      []ghcli.PullRequestSummary
+	prListIndex int
+
 	confirm *confirmState
 
 	logFilePath  string
@@ -323,5 +328,10 @@ type stashListLoadedMsg struct {
 type stashDiffLoadedMsg struct {
 	ref     string
 	content string
+	err     error
+}
+
+type prListLoadedMsg struct {
+	entries []ghcli.PullRequestSummary
 	err     error
 }

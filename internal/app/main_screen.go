@@ -366,6 +366,16 @@ func (m *Model) handleMain(msg tea.Msg, cmds []tea.Cmd) (tea.Model, tea.Cmd) {
 		case m.matchesKeybinding(config.ActionOpenStash, msg):
 			m.screen = screenStash
 			cmds = append(cmds, loadStashListCmd(m.repo.Root))
+
+		case m.matchesKeybinding(config.ActionOpenPRList, msg):
+			if !m.cfg.PullRequest.Enabled {
+				m.notice = "Pull request features are disabled in config."
+				return m, tea.Batch(cmds...)
+			}
+			logger.Info("open PR list")
+			m.screen = screenPRList
+			m.loading = true
+			cmds = append(cmds, loadOpenPRsCmd(m.repo.Root, m.cfg.PullRequest.ListLimit))
 		}
 	}
 

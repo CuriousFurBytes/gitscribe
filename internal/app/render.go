@@ -47,6 +47,8 @@ func (m *Model) renderBaseScreen() string {
 		return m.renderPRScreen()
 	case screenStash:
 		return m.renderStash()
+	case screenPRList:
+		return m.renderPRList()
 	default:
 		return m.renderMain()
 	}

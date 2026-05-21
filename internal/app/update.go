@@ -57,6 +57,8 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		}
 		return m, tea.Batch(cmds...)
+	case prListLoadedMsg:
+		return m.updatePRListLoaded(msg, cmds)
 	case stashDiffLoadedMsg:
 		if msg.err != nil {
 			m.stashViewport.SetContent("Could not load stash diff: " + msg.err.Error())
@@ -162,6 +164,8 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m.handlePR(msg, cmds)
 	case screenStash:
 		return m.handleStash(msg, cmds)
+	case screenPRList:
+		return m.handlePRList(msg, cmds)
 	}
 
 	return m, tea.Batch(cmds...)

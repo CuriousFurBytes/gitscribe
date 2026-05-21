@@ -135,6 +135,9 @@ type PullRequestConfig struct {
 	// One of: "modal" (show URL in a modal), "browser" (open in browser),
 	// or "none" (do nothing extra). Defaults to "modal".
 	AfterCreate string `toml:"after_create"`
+	// ListLimit caps how many open PRs are fetched by the PR list screen.
+	// Zero falls back to the gh CLI default (30).
+	ListLimit int `toml:"list_limit"`
 }
 
 type HistoryConfig struct {
@@ -184,6 +187,7 @@ const (
 	ActionTabPreview     = "tab_preview"
 	ActionOpenStash      = "open_stash"
 	ActionOpenWorktrees  = "open_worktrees"
+	ActionOpenPRList     = "open_pr_list"
 )
 
 func DefaultKeybindings() map[string][]string {
@@ -224,6 +228,7 @@ func DefaultKeybindings() map[string][]string {
 		ActionTabPreview:     {"3"},
 		ActionOpenStash:      {"S"},
 		ActionOpenWorktrees:  {"W"},
+		ActionOpenPRList:     {"O"},
 	}
 }
 
@@ -322,6 +327,7 @@ func Defaults() Config {
 			TemplatePath: "",
 			GHArgs:       []string{"--assignee", "@me"},
 			AfterCreate:  "modal",
+			ListLimit:    50,
 		},
 		History: HistoryConfig{
 			MaxCommits: 200,
