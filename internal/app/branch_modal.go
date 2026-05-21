@@ -6,6 +6,27 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
+// filterBranches returns the subset of branches whose names contain query as a
+// case-insensitive substring. A blank query returns the input slice unchanged.
+// A nil input slice yields a nil result.
+func filterBranches(branches []string, query string) []string {
+	q := strings.TrimSpace(query)
+	if q == "" {
+		return branches
+	}
+	if branches == nil {
+		return nil
+	}
+	needle := strings.ToLower(q)
+	out := make([]string, 0, len(branches))
+	for _, b := range branches {
+		if strings.Contains(strings.ToLower(b), needle) {
+			out = append(out, b)
+		}
+	}
+	return out
+}
+
 func (m *Model) renderBranchSelector() string {
 	if m.branchCreating {
 		baseName := ""

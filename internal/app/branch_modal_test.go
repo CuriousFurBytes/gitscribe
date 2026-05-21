@@ -130,3 +130,83 @@ func TestBranchSelectorDownClamps(t *testing.T) {
 		t.Fatalf("expected index clamped at 0")
 	}
 }
+
+func TestFilterBranches(t *testing.T) {
+	branches := []string{
+		"main",
+		"develop",
+		"feature/login",
+		"feature/Logout",
+		"fix/typo",
+		"release/1.0",
+	}
+	cases := []struct {
+		name   string
+		query  string
+		input  []string
+		want   []string
+	}{
+		{
+			name:  "empty query returns all branches",
+			query: "",
+			input: branches,
+			want:  branches,
+		},
+		{
+			name:  "whitespace-only query returns all branches",
+			query: "   ",
+			input: branches,
+			want:  branches,
+		},
+		{
+			name:  "substring match is case-insensitive",
+			query: "LOGIN",
+			input: branches,
+			want:  []string{"feature/login"},
+		},
+		{
+			name:  "matches multiple branches",
+			query: "feature",
+			input: branches,
+			want:  []string{"feature/login", "feature/Logout"},
+		},
+		{
+			name:  "matches across slashes",
+			query: "ure/log",
+			input: branches,
+			want:  []string{"feature/login", "feature/Logout"},
+		},
+		{
+			name:  "no matches returns empty slice",
+			query: "nope",
+			input: branches,
+			want:  []string{},
+		},
+		{
+			name:  "trims surrounding whitespace from query",
+			query: "  main  ",
+			input: branches,
+			want:  []string{"main"},
+		},
+		{
+			name:  "nil input returns nil",
+			query: "main",
+			input: nil,
+			want:  nil,
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			got := filterBranches(tc.input, tc.query)
+			if len(got) != len(tc.want) {
+				t.Fatalf("filterBranches(%v, %q) = %v, want %v", tc.input, tc.query, got, tc.want)
+			}
+			for i, b := range got {
+				if b != tc.want[i] {
+					t.Fatalf("filterBranches(%v, %q)[%d] = %q, want %q", tc.input, tc.query, i, b, tc.want[i])
+				}
+			}
+		})
+	}
+}
