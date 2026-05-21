@@ -73,3 +73,30 @@ func TestPROpensFromMainWhenEnabled(t *testing.T) {
 		t.Fatalf("expected PR screen")
 	}
 }
+
+func TestFormTitleCharLimits(t *testing.T) {
+	cases := []struct {
+		name string
+		form func(*Model) *formState
+	}{
+		{"commit", func(m *Model) *formState { return &m.commitForm }},
+		{"pr", func(m *Model) *formState { return &m.prForm }},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			m := newReadyTestModel()
+			if got := tc.form(m).Title.CharLimit; got != 72 {
+				t.Fatalf("%s title CharLimit = %d, want 72", tc.name, got)
+			}
+		})
+	}
+}
+
+func TestPRFormResetUsesTitleCharLimit72(t *testing.T) {
+	m := newReadyTestModel()
+	m.prForm = newForm("PR title", "PR body", 999)
+	model, _ := m.Update(operationResultMsg{success: true, clearPR: true})
+	if got := model.(*Model).prForm.Title.CharLimit; got != 72 {
+		t.Fatalf("post-reset PR title CharLimit = %d, want 72", got)
+	}
+}

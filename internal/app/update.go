@@ -275,7 +275,7 @@ func (m *Model) updateOperationResult(msg operationResultMsg, cmds []tea.Cmd) (t
 			m.amendMode = false
 		}
 		if msg.clearPR {
-			m.prForm = newForm("PR title", "PR body", 120)
+			m.prForm = newForm("PR title", "PR body", 72)
 		}
 		if msg.clearCommit || msg.clearPR {
 			m.persistDraft()
