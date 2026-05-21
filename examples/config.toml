@@ -85,6 +85,12 @@ enabled = true
 default_base = ""
 template_path = ""
 gh_args = ["--assignee", "@me"]
+# What to do once `gh pr create` succeeds and the PR URL is known.
+# One of: "modal"   - show the URL in a dismissable modal (default)
+#         "browser" - open the URL in the system browser
+#                     (open on macOS, xdg-open on Linux, cmd /c start on Windows)
+#         "none"    - do nothing extra
+after_create = "modal"
 
 [history]
 max_commits = 200
