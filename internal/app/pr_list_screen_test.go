@@ -151,3 +151,60 @@ func TestRenderPRListScreenHasHeader(t *testing.T) {
 		t.Fatalf("PR list screen should have header, got: %s", out)
 	}
 }
+
+func TestPRListScreenEnterOpensSelectedPRInBrowser(t *testing.T) {
+	m := newReadyPRListModel()
+	m.prListIndex = 1 // wip: bar / pull/7
+
+	var openedURL string
+	prev := openURLInBrowser
+	openURLInBrowser = func(url string) error {
+		openedURL = url
+		return nil
+	}
+	t.Cleanup(func() { openURLInBrowser = prev })
+
+	model, _ := m.Update(tea.KeyMsg{Type: tea.KeyEnter})
+	got := model.(*Model)
+	if openedURL != "https://github.com/owner/repo/pull/7" {
+		t.Fatalf("expected opener to receive selected PR URL, got %q", openedURL)
+	}
+	if got.screen != screenPRList {
+		t.Fatalf("Enter should keep PR list screen visible, got %q", got.screen)
+	}
+}
+
+func TestPRListScreenEnterReportsBrowserError(t *testing.T) {
+	m := newReadyPRListModel()
+
+	prev := openURLInBrowser
+	openURLInBrowser = func(url string) error {
+		return assertErr("no browser available")
+	}
+	t.Cleanup(func() { openURLInBrowser = prev })
+
+	model, _ := m.Update(tea.KeyMsg{Type: tea.KeyEnter})
+	got := model.(*Model)
+	if !strings.Contains(got.notice, "no browser available") {
+		t.Fatalf("expected notice to mention browser error, got %q", got.notice)
+	}
+}
+
+func TestPRListScreenEnterNoopOnEmpty(t *testing.T) {
+	m := newReadyTestModel()
+	m.screen = screenPRList
+	m.prList = nil
+
+	called := false
+	prev := openURLInBrowser
+	openURLInBrowser = func(url string) error {
+		called = true
+		return nil
+	}
+	t.Cleanup(func() { openURLInBrowser = prev })
+
+	m.Update(tea.KeyMsg{Type: tea.KeyEnter})
+	if called {
+		t.Fatalf("Enter on empty PR list must not invoke browser opener")
+	}
+}

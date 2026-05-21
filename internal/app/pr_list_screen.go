@@ -108,6 +108,24 @@ func (m *Model) handlePRList(msg tea.Msg, cmds []tea.Cmd) (tea.Model, tea.Cmd) {
 		case "r":
 			m.loading = true
 			cmds = append(cmds, loadOpenPRsCmd(m.repo.Root, m.cfg.PullRequest.ListLimit))
+		case "enter":
+			if len(m.prList) == 0 {
+				return m, tea.Batch(cmds...)
+			}
+			if m.prListIndex < 0 || m.prListIndex >= len(m.prList) {
+				return m, tea.Batch(cmds...)
+			}
+			url := strings.TrimSpace(m.prList[m.prListIndex].URL)
+			if url == "" {
+				m.notice = "Selected PR has no URL."
+				return m, tea.Batch(cmds...)
+			}
+			if err := openURLInBrowser(url); err != nil {
+				logger.Error("open browser failed", "err", err)
+				m.notice = "Could not open browser: " + err.Error()
+			} else {
+				m.notice = "Opened PR in browser: " + url
+			}
 		}
 	}
 	return m, tea.Batch(cmds...)
