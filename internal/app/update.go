@@ -85,6 +85,13 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m.updateCommitPatchLoaded(msg, cmds)
 	case operationResultMsg:
 		return m.updateOperationResult(msg, cmds)
+	case toastMsg:
+		m.toast = toastState{text: msg.text, kind: msg.kind}
+		cmds = append(cmds, toastExpireCmd())
+		return m, tea.Batch(cmds...)
+	case toastExpireMsg:
+		m.toast = toastState{}
+		return m, tea.Batch(cmds...)
 	case aiGeneratedMsg:
 		return m.updateAIGenerated(msg, cmds)
 	case prTemplateLoadedMsg:
@@ -276,6 +283,10 @@ func (m *Model) updateOperationResult(msg operationResultMsg, cmds []tea.Cmd) (t
 		}
 		if msg.clearPR {
 			m.prForm = newForm("PR title", "PR body", 72)
+		}
+		if text := successToastText(msg); text != "" {
+			m.toast = toastState{text: text, kind: toastSuccess}
+			cmds = append(cmds, toastExpireCmd())
 		}
 		if msg.clearCommit || msg.clearPR {
 			m.persistDraft()

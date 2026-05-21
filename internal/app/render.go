@@ -31,6 +31,9 @@ func (m *Model) View() string {
 	if m.modal.visible {
 		base = overlayCentered(base, m.renderModal(), m.width, m.height)
 	}
+	if m.toast.visible() {
+		base = overlayBottomRight(base, m.renderToast(m.width), m.width, m.height)
+	}
 	return base
 }
 

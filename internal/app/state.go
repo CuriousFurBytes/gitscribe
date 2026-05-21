@@ -133,6 +133,22 @@ type operationStatus struct {
 	label string
 }
 
+type toastKind string
+
+const (
+	toastSuccess toastKind = "success"
+	toastInfo    toastKind = "info"
+)
+
+type toastState struct {
+	text string
+	kind toastKind
+}
+
+func (t toastState) visible() bool {
+	return t.text != ""
+}
+
 type treeStatus struct {
 	RepoStatus git.RepoStatus
 }
@@ -195,6 +211,8 @@ type Model struct {
 	directMode   bool
 	directScreen screen
 	amendMode    bool
+
+	toast toastState
 }
 
 type repoLoadedMsg struct {
@@ -249,6 +267,15 @@ type prTemplateLoadedMsg struct {
 }
 
 type titleTickMsg struct{}
+
+type toastMsg struct {
+	text string
+	kind toastKind
+}
+
+type toastExpireMsg struct{}
+
+const toastDuration = 3 * time.Second
 
 type shellCommandResultMsg struct {
 	output string

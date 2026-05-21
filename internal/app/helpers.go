@@ -203,6 +203,28 @@ func truncateANSI(text string, width int) string {
 	return ansi.Cut(text, 0, width-1) + "…"
 }
 
+func overlayBottomRight(base string, overlay string, width int, height int) string {
+	baseLines := normalizeLines(lipgloss.Place(width, height, lipgloss.Left, lipgloss.Top, base), height, width)
+	overlayLines := strings.Split(strings.TrimRight(overlay, "\n"), "\n")
+	if len(overlayLines) == 0 {
+		return strings.Join(baseLines, "\n")
+	}
+	overlayWidth := 0
+	for _, line := range overlayLines {
+		overlayWidth = max(overlayWidth, ansi.StringWidth(line))
+	}
+	startX := max(0, width-overlayWidth-1)
+	startY := max(0, height-len(overlayLines)-1)
+	for i, line := range overlayLines {
+		y := startY + i
+		if y < 0 || y >= len(baseLines) {
+			continue
+		}
+		baseLines[y] = overlayLineAt(baseLines[y], line, startX, width)
+	}
+	return strings.Join(baseLines, "\n")
+}
+
 func overlayCentered(base string, overlay string, width int, height int) string {
 	baseLines := normalizeLines(lipgloss.Place(width, height, lipgloss.Left, lipgloss.Top, base), height, width)
 	overlayLines := strings.Split(overlay, "\n")

@@ -224,6 +224,40 @@ func TestUpdateRoutesGlobalKeyToHelp(t *testing.T) {
 	}
 }
 
+func TestUpdateOperationResultCommitSuccessShowsToast(t *testing.T) {
+	m := newReadyTestModel()
+	m.cfg.Logs.AutoCloseOnSuccess = true
+	m.screen = screenCommit
+	model, _ := m.Update(operationResultMsg{
+		title:           "Commit",
+		output:          "ok",
+		success:         true,
+		successReturnTo: screenMain,
+		clearCommit:     true,
+	})
+	got := model.(*Model)
+	if !strings.Contains(got.View(), "Commit created") {
+		t.Fatalf("expected toast 'Commit created' in View, got:\n%s", got.View())
+	}
+}
+
+func TestUpdateOperationResultPRSuccessShowsToast(t *testing.T) {
+	m := newReadyTestModel()
+	m.cfg.Logs.AutoCloseOnSuccess = true
+	m.screen = screenPR
+	model, _ := m.Update(operationResultMsg{
+		title:           "Pull request",
+		output:          "ok",
+		success:         true,
+		successReturnTo: screenMain,
+		clearPR:         true,
+	})
+	got := model.(*Model)
+	if !strings.Contains(got.View(), "Pull request created") {
+		t.Fatalf("expected toast 'Pull request created' in View, got:\n%s", got.View())
+	}
+}
+
 func TestUpdateOperationResultFailureSurfacesStderr(t *testing.T) {
 	m := newReadyTestModel()
 	m.screen = screenCommit
