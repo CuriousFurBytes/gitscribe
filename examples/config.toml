@@ -1,0 +1,131 @@
+[ui]
+show_intro_animation = true
+border_style = "rounded"
+min_width = 100
+min_height = 28
+
+[theme]
+# Every theme color accepts either a hex value like "#60A5FA"
+# or a terminal palette color code like "39".
+status_fg = "#C0C0C0"
+text_fg = "#D1D5DB"
+accent_fg = "#60A5FA"
+accent_alt_fg = "#A78BFA"
+success_fg = "#4ADE80"
+error_fg = "#F87171"
+warning_fg = "#FDE68A"
+badge_fg = "#111827"
+badge_bg = "#E5E7EB"
+selected_arrow_fg = "#60A5FA"
+shortcut_key_fg = "#FFFFFF"
+shortcut_text_fg = "#9CA3AF"
+branch_bg = "#FFFFFF"
+branch_fg = "#4B5563"
+main_files_border = "#666666"
+main_files_title = "#FFFFFF"
+main_diff_border = "#666666"
+main_diff_title = "#FFFFFF"
+history_list_border = "#666666"
+history_list_title = "#FFFFFF"
+history_changes_border = "#666666"
+history_changes_title = "#FFFFFF"
+commit_title_border = "#666666"
+commit_title_title = "#FFFFFF"
+commit_body_border = "#666666"
+commit_body_title = "#FFFFFF"
+pr_title_border = "#666666"
+pr_title_title = "#FFFFFF"
+pr_body_border = "#666666"
+pr_body_title = "#FFFFFF"
+logs_border = "#666666"
+logs_title = "#FFFFFF"
+help_border = "#666666"
+help_title = "#FFFFFF"
+confirm_border = "#666666"
+confirm_title = "#FFFFFF"
+staged_fg = "#A7F3D0"
+staged_bg = "#064E3B"
+unstaged_fg = "#FDE68A"
+unstaged_bg = "#78350F"
+changed_fg = "#FCA5A5"
+changed_bg = "#7F1D1D"
+untracked_fg = "#BFDBFE"
+untracked_bg = "#1E3A8A"
+
+[git]
+diff_mode = "auto"                # auto | staged | unstaged
+unstaged_diff_command = ["git", "diff", "--no-ext-diff", "--", "{file}"]
+staged_diff_command = ["git", "diff", "--cached", "--no-ext-diff", "--", "{file}"]
+diff_command_placeholders = ["{file}", "{repo_root}"]
+diff_renderer = "plain"           # plain | ansi
+branch_switch_command = "git switch"
+preview_syntax_theme = "dracula"  # chroma theme for Preview tab (e.g. monokai, github, solarized-dark)
+editor_command = ""               # override $EDITOR for Raw tab (e.g. "nvim", "hx", "vim")
+
+[commit]
+require_confirmation = true
+body_wrap_width = 72
+
+[ai]
+enabled = true
+command_template = ["claude", "--model", "{model}", "-p"]
+model = "sonnet"
+mode = "title_and_body"           # title_and_body | title_only
+style = "formal"                  # formal | neutral | fun
+message_format = "conventional"   # conventional | emoji | normal
+prompt_complement = ""
+max_diff_bytes = 120000
+per_file_chunk_bytes = 30000
+summary_prompt_file = ""
+final_prompt_file = ""
+output_format = "json"
+
+[pull_request]
+enabled = true
+default_base = ""
+template_path = ""
+gh_args = ["--assignee", "@me"]
+
+[history]
+max_commits = 200
+show_author = true
+
+[logs]
+max_lines = 1000
+auto_close_on_success = true
+
+[[hooks]]
+name = "Go test"
+command = ["go", "test", "./..."]
+
+[keybindings]
+# Unspecified actions keep their built-in defaults.
+# Single characters are case-sensitive: "a" and "A" are different bindings.
+# Modifier combos are case-insensitive: "ctrl+s" and "Ctrl+S" are the same.
+quit = ["q", "esc"]
+open_commit = ["c"]
+commit_ai = ["a"]           # open commit screen with AI pre-fill
+commit_no_verify = ["w"]    # open commit screen with --no-verify
+amend = ["A"]               # amend last commit
+open_pull_request = ["ctrl+p"]
+open_history = ["H"]
+open_hooks = ["ctrl+g"]
+open_shell = [":"]
+open_editor = ["e"]
+submit = ["ctrl+s"]
+stash = ["s"]
+discard = ["d"]
+reset = ["D"]
+fetch = ["f"]
+pull = ["p"]
+push = ["P"]
+stage_all = ["ctrl+a"]
+copy_path = ["ctrl+o"]
+ignore = ["i"]
+open_logs = ["L"]
+tab_diff = ["1"]
+tab_raw = ["2"]
+tab_preview = ["3"]
+open_stash = ["S"]          # open stash screen
+open_worktrees = ["W"]      # open worktrees modal
+open_branches = ["b", "ctrl+b"]  # switch/create branch

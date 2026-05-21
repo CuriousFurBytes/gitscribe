@@ -1,0 +1,18 @@
+pre-commit:
+  piped: true
+  commands:
+    fmt:
+      glob: "*.go"
+      run: gofmt -l -w {staged_files}
+      stage_fixed: true
+
+    fmt-check:
+      glob: "*.go"
+      run: test -z "$(gofmt -l {staged_files})"
+      fail_text: "gofmt: files still unformatted after auto-fix"
+
+    vet:
+      run: go vet ./...
+
+    test:
+      run: go test ./...
