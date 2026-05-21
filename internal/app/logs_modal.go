@@ -53,6 +53,8 @@ func (m *Model) openLogsModal(msg operationResultMsg) {
 	if strings.TrimSpace(content) == "" {
 		if msg.success {
 			content = "Operation completed successfully."
+		} else if strings.TrimSpace(msg.stderr) != "" {
+			content = trimLog(msg.stderr, m.cfg.Logs.MaxLines)
 		} else if msg.err != nil {
 			content = msg.err.Error()
 		}

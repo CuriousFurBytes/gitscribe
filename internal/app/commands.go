@@ -244,6 +244,7 @@ func commitCmd(repoRoot string, title string, body string, noVerify bool) tea.Cm
 		return operationResultMsg{
 			title:           "Commit",
 			output:          result.Output(),
+			stderr:          result.Stderr,
 			success:         err == nil,
 			successReturnTo: screenMain,
 			failureReturnTo: screenCommit,
@@ -264,6 +265,7 @@ func createPRCmd(repoRoot string, cfg config.PullRequestConfig, title string, bo
 		return operationResultMsg{
 			title:           "Pull request",
 			output:          result.Output(),
+			stderr:          result.Stderr,
 			success:         err == nil,
 			successReturnTo: screenMain,
 			failureReturnTo: screenPR,
@@ -573,6 +575,7 @@ func amendCmd(repoRoot string, title string, body string, noVerify bool) tea.Cmd
 		return operationResultMsg{
 			title:           "Amend",
 			output:          result.Output(),
+			stderr:          result.Stderr,
 			success:         err == nil,
 			successReturnTo: screenMain,
 			failureReturnTo: screenCommit,

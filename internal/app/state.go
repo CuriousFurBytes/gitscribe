@@ -224,6 +224,7 @@ type commitPatchLoadedMsg struct {
 type operationResultMsg struct {
 	title           string
 	output          string
+	stderr          string
 	success         bool
 	successReturnTo screen
 	failureReturnTo screen

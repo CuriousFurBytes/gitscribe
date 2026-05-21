@@ -224,6 +224,23 @@ func TestUpdateRoutesGlobalKeyToHelp(t *testing.T) {
 	}
 }
 
+func TestUpdateOperationResultFailureSurfacesStderr(t *testing.T) {
+	m := newReadyTestModel()
+	m.screen = screenCommit
+	model, _ := m.Update(operationResultMsg{
+		title:           "Commit",
+		output:          "",
+		stderr:          "error: pre-commit hook failed",
+		success:         false,
+		failureReturnTo: screenCommit,
+		err:             errors.New("git commit: exit code 1"),
+	})
+	got := model.(*Model)
+	if !strings.Contains(got.View(), "error: pre-commit hook failed") {
+		t.Fatalf("expected View to surface stderr text, got:\n%s", got.View())
+	}
+}
+
 func TestUpdateOperationResultAutoCloseRefreshes(t *testing.T) {
 	m := newReadyTestModel()
 	m.cfg.Logs.AutoCloseOnSuccess = true
