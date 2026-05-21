@@ -18,6 +18,33 @@ var (
 	errBadEnum       = errors.New("invalid configuration enum")
 )
 
+// AICommitStyles lists every accepted value for ai.style. The list is the
+// single source of truth for validation and for the prompt-building code in
+// internal/ai. Keep the legacy names ("formal", "neutral", "fun") for
+// backwards compatibility with existing user configs.
+var AICommitStyles = []string{
+	"formal",
+	"neutral",
+	"fun",
+	"concise",
+	"detailed",
+	"friendly",
+	"technical",
+	"changelog",
+}
+
+// AIMessageFormats lists every accepted value for ai.message_format. "emoji"
+// and "gitmoji" are aliases for the same output style; "normal" and "plain"
+// likewise. Both spellings are accepted so existing configs keep working
+// while new configs can use the clearer names.
+var AIMessageFormats = []string{
+	"conventional",
+	"emoji",
+	"normal",
+	"gitmoji",
+	"plain",
+}
+
 type LoadOptions struct {
 	ExplicitPath string
 	RepoRoot     string
@@ -411,10 +438,10 @@ func Validate(cfg Config) error {
 		if err := validateOneOf("ai.mode", cfg.AI.Mode, "title_and_body", "title_only"); err != nil {
 			return err
 		}
-		if err := validateOneOf("ai.style", cfg.AI.Style, "formal", "neutral", "fun"); err != nil {
+		if err := validateOneOf("ai.style", cfg.AI.Style, AICommitStyles...); err != nil {
 			return err
 		}
-		if err := validateOneOf("ai.message_format", cfg.AI.MessageFormat, "conventional", "emoji", "normal"); err != nil {
+		if err := validateOneOf("ai.message_format", cfg.AI.MessageFormat, AIMessageFormats...); err != nil {
 			return err
 		}
 		if cfg.AI.OutputFormat != "json" {

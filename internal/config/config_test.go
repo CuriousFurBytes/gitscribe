@@ -232,6 +232,47 @@ func TestValidateRejectsInvalidAfterCreate(t *testing.T) {
 	}
 }
 
+func TestValidateAcceptsExpandedCommitStyles(t *testing.T) {
+	for _, style := range []string{
+		"formal", "neutral", "fun",
+		"concise", "detailed", "friendly", "technical", "changelog",
+	} {
+		cfg := Defaults()
+		cfg.AI.Style = style
+		if err := Validate(cfg); err != nil {
+			t.Fatalf("expected style %q to validate, got %v", style, err)
+		}
+	}
+}
+
+func TestValidateRejectsUnknownCommitStyle(t *testing.T) {
+	cfg := Defaults()
+	cfg.AI.Style = "shakespearean"
+	if err := Validate(cfg); err == nil {
+		t.Fatalf("expected unknown ai.style to fail validation")
+	}
+}
+
+func TestValidateAcceptsExpandedMessageFormats(t *testing.T) {
+	for _, format := range []string{
+		"conventional", "emoji", "normal", "gitmoji", "plain",
+	} {
+		cfg := Defaults()
+		cfg.AI.MessageFormat = format
+		if err := Validate(cfg); err != nil {
+			t.Fatalf("expected message_format %q to validate, got %v", format, err)
+		}
+	}
+}
+
+func TestValidateRejectsUnknownMessageFormat(t *testing.T) {
+	cfg := Defaults()
+	cfg.AI.MessageFormat = "haiku"
+	if err := Validate(cfg); err == nil {
+		t.Fatalf("expected unknown ai.message_format to fail validation")
+	}
+}
+
 func TestValidateAcceptsNewKeybindingActions(t *testing.T) {
 	cfg := Defaults()
 	cfg.Keybindings = map[string][]string{
