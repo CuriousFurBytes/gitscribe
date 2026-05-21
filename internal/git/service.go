@@ -27,7 +27,18 @@ func LoadStatus(ctx context.Context, repoRoot string) (RepoStatus, error) {
 	if err != nil {
 		return RepoStatus{}, fmt.Errorf("git status: %w\n%s", err, result.Output())
 	}
-	return ParseStatus(result.Stdout)
+	status, err := ParseStatus(result.Stdout)
+	if err != nil {
+		return status, err
+	}
+	if status.HasStaged {
+		stats, statsErr := LoadStagedDiffStats(ctx, repoRoot)
+		if statsErr != nil {
+			return status, statsErr
+		}
+		status.StagedStats = stats
+	}
+	return status, nil
 }
 
 func ListBranches(ctx context.Context, repoRoot string) ([]string, error) {

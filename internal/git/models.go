@@ -22,6 +22,7 @@ type RepoStatus struct {
 	HasUnstaged    bool
 	HasUntracked   bool
 	Files          []FileChange
+	StagedStats    DiffStats
 }
 
 type FileChange struct {

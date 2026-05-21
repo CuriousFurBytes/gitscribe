@@ -22,6 +22,11 @@ func (m *Model) renderForm(title string, form formState, current screen, allowAI
 	if form.NoVerify {
 		titleLabel += "  " + lipgloss.NewStyle().Foreground(lipgloss.Color("#F59E0B")).Bold(true).Render("--no-verify")
 	}
+	if current == screenCommit {
+		if summary := m.status.RepoStatus.StagedStats.Summary(); summary != "" {
+			titleLabel += "  " + muted.Render(summary)
+		}
+	}
 	titleSection := lipgloss.JoinVertical(lipgloss.Left, titleLabel, "", form.Title.View())
 
 	bodyCount := utf8.RuneCountInString(form.Body.Value())

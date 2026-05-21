@@ -7,6 +7,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 
 	"github.com/CuriousFurBytes/gitscribe/internal/config"
+	"github.com/CuriousFurBytes/gitscribe/internal/git"
 )
 
 func TestRenderFormWithAIShortcut(t *testing.T) {
@@ -266,6 +267,37 @@ func TestFormShortcutsCapitalizesCtrl(t *testing.T) {
 	out := m.renderCommitScreen()
 	if strings.Contains(out, "ctrl+") {
 		t.Fatalf("commit form shortcuts contain lowercase ctrl+")
+	}
+}
+
+func TestCommitScreenShowsStagedDiffStats(t *testing.T) {
+	m := newReadyTestModel()
+	m.screen = screenCommit
+	m.status.RepoStatus.StagedStats = git.DiffStats{FilesChanged: 3, Insertions: 42, Deletions: 7}
+	out := m.renderCommitScreen()
+	if !strings.Contains(out, "3 files, +42 -7") {
+		t.Fatalf("expected staged diff summary in commit screen, got: %s", out)
+	}
+}
+
+func TestCommitScreenOmitsStagedDiffStatsWhenZero(t *testing.T) {
+	m := newReadyTestModel()
+	m.screen = screenCommit
+	m.status.RepoStatus.StagedStats = git.DiffStats{}
+	out := m.renderCommitScreen()
+	// Summary contains a comma + plus + minus pattern; we shouldn't see "+0 -0"
+	if strings.Contains(out, "+0 -0") {
+		t.Fatalf("did not expect empty staged diff summary, got: %s", out)
+	}
+}
+
+func TestPRScreenOmitsStagedDiffStats(t *testing.T) {
+	m := newReadyTestModel()
+	m.screen = screenPR
+	m.status.RepoStatus.StagedStats = git.DiffStats{FilesChanged: 3, Insertions: 42, Deletions: 7}
+	out := m.renderPRScreen()
+	if strings.Contains(out, "3 files, +42 -7") {
+		t.Fatalf("did not expect staged diff summary in PR screen, got: %s", out)
 	}
 }
 
