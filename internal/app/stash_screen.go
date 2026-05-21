@@ -76,6 +76,7 @@ func (m *Model) handleStash(msg tea.Msg, cmds []tea.Cmd) (tea.Model, tea.Cmd) {
 		if m.matchesKeybinding(config.ActionOpenBranches, msg) {
 			if len(m.branches) > 0 {
 				m.branchSelector = true
+				m.branchFilter = ""
 				m.setCurrentBranchIndex()
 			}
 			return m, tea.Batch(cmds...)

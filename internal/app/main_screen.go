@@ -351,6 +351,7 @@ func (m *Model) handleMain(msg tea.Msg, cmds []tea.Cmd) (tea.Model, tea.Cmd) {
 		case m.matchesKeybinding(config.ActionOpenBranches, msg):
 			if len(m.branches) > 0 {
 				m.branchSelector = true
+				m.branchFilter = ""
 				m.setCurrentBranchIndex()
 			}
 

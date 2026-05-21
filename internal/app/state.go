@@ -196,6 +196,7 @@ type Model struct {
 	branchSelector    bool
 	branchCreating    bool
 	branchCreateInput textinput.Model
+	branchFilter      string
 
 	worktreeEntries    []git.WorktreeEntry
 	worktreeIndex      int

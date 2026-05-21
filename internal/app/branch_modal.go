@@ -46,8 +46,14 @@ func (m *Model) renderBranchSelector() string {
 		return m.styles.Modal("New Branch", body, 52, m.cfg.Theme.HelpBorder, m.cfg.Theme.HelpTitle)
 	}
 
+	filtered := filterBranches(m.branches, m.branchFilter)
 	lines := []string{"Select a branch:\n"}
-	for i, branch := range m.branches {
+	cursor := "_"
+	lines = append(lines, "filter: "+m.branchFilter+cursor+"\n")
+	if len(filtered) == 0 {
+		lines = append(lines, "  (no branches match)")
+	}
+	for i, branch := range filtered {
 		prefix := "  "
 		if i == m.branchIndex {
 			prefix = m.selectedArrow() + " "
@@ -60,8 +66,8 @@ func (m *Model) renderBranchSelector() string {
 	}
 	lines = append(lines, "\n"+m.renderShortcutHints(
 		shortcutHint{Key: "Enter", Text: "Switch"},
-		shortcutHint{Key: "n", Text: "New"},
-		shortcutHint{Key: "Esc", Text: "Cancel"},
+		shortcutHint{Key: "Ctrl+N", Text: "New"},
+		shortcutHint{Key: "Esc", Text: "Clear/Cancel"},
 	))
 	return m.styles.Modal("Branches", strings.Join(lines, "\n"), 48, m.cfg.Theme.HelpBorder, m.cfg.Theme.HelpTitle)
 }
@@ -93,26 +99,77 @@ func (m *Model) handleBranchSelector(msg tea.KeyMsg, cmds []tea.Cmd) (tea.Model,
 		return m, tea.Batch(cmds...)
 	}
 
-	switch msg.String() {
-	case "esc":
-		m.branchSelector = false
-	case "up", "k":
-		if m.branchIndex > 0 {
-			m.branchIndex--
+	filtered := filterBranches(m.branches, m.branchFilter)
+
+	switch msg.Type {
+	case tea.KeyEsc:
+		if m.branchFilter != "" {
+			m.branchFilter = ""
+			m.setCurrentBranchIndex()
+		} else {
+			m.branchSelector = false
 		}
-	case "down", "j":
-		if m.branchIndex < len(m.branches)-1 {
-			m.branchIndex++
+		return m, tea.Batch(cmds...)
+	case tea.KeyBackspace:
+		if m.branchFilter != "" {
+			runes := []rune(m.branchFilter)
+			m.branchFilter = string(runes[:len(runes)-1])
+			if m.branchFilter == "" {
+				m.setCurrentBranchIndex()
+			} else {
+				m.clampBranchIndexToFiltered()
+			}
 		}
-	case "n":
+		return m, tea.Batch(cmds...)
+	case tea.KeyCtrlN:
 		m.branchCreating = true
 		m.branchCreateInput.SetValue("")
 		m.branchCreateInput.Focus()
-	case "enter":
-		if m.branchIndex >= 0 && m.branchIndex < len(m.branches) {
-			m.branchSelector = false
-			cmds = append(cmds, switchBranchCmd(m.repo.Root, m.branches[m.branchIndex]))
+		return m, tea.Batch(cmds...)
+	case tea.KeyUp:
+		if m.branchIndex > 0 {
+			m.branchIndex--
 		}
+		return m, tea.Batch(cmds...)
+	case tea.KeyDown:
+		if m.branchIndex < len(filtered)-1 {
+			m.branchIndex++
+		}
+		return m, tea.Batch(cmds...)
+	case tea.KeyEnter:
+		if m.branchIndex >= 0 && m.branchIndex < len(filtered) {
+			m.branchSelector = false
+			m.branchFilter = ""
+			cmds = append(cmds, switchBranchCmd(m.repo.Root, filtered[m.branchIndex]))
+		}
+		return m, tea.Batch(cmds...)
+	case tea.KeyRunes, tea.KeySpace:
+		// Treat printable runes as filter input
+		runes := msg.Runes
+		if msg.Type == tea.KeySpace {
+			runes = []rune{' '}
+		}
+		if len(runes) > 0 {
+			m.branchFilter += string(runes)
+			m.clampBranchIndexToFiltered()
+		}
+		return m, tea.Batch(cmds...)
 	}
 	return m, tea.Batch(cmds...)
+}
+
+// clampBranchIndexToFiltered ensures the branchIndex stays within the bounds of
+// the filtered branch list, falling back to 0 when the filtered list is empty.
+func (m *Model) clampBranchIndexToFiltered() {
+	filtered := filterBranches(m.branches, m.branchFilter)
+	if len(filtered) == 0 {
+		m.branchIndex = 0
+		return
+	}
+	if m.branchIndex >= len(filtered) {
+		m.branchIndex = len(filtered) - 1
+	}
+	if m.branchIndex < 0 {
+		m.branchIndex = 0
+	}
 }
