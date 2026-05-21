@@ -60,6 +60,7 @@ gitscribe --no-animation        # disable startup animation
 | `A` | Amend last commit |
 | `w` | Open commit screen with `--no-verify` |
 | `Ctrl+P` | Open pull request screen |
+| `O` | Open list of open pull requests |
 | `H` | Open commit history |
 | `b` / `Ctrl+B` | Switch branch (also opens create-branch flow) |
 | `W` | Open worktrees modal |
@@ -94,6 +95,21 @@ gitscribe --no-animation        # disable startup animation
 | `d` | Drop selected stash |
 | `r` | Refresh stash list |
 | `Esc` / `q` | Return to main |
+
+### Open PRs screen
+
+Lists open pull requests for the current repository via `gh pr list`. Each row
+shows the PR number, title, author, branch (`head -> base`), and a `[draft]`
+badge when applicable. Requires `gh` to be installed and authenticated.
+
+| Key | Action |
+|---|---|
+| `↑/↓` `j/k` | Navigate PR list |
+| `Enter` | Open selected PR in the default browser |
+| `r` | Refresh PR list |
+| `Esc` / `q` | Return to main |
+
+The fetch limit is configurable via `pull_request.list_limit` (default 50).
 
 ### Worktrees modal
 
