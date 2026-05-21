@@ -258,6 +258,22 @@ func TestUpdateOperationResultPRSuccessShowsToast(t *testing.T) {
 	}
 }
 
+func TestToastExpireMsgClearsToast(t *testing.T) {
+	m := newReadyTestModel()
+	m.toast = toastState{text: "Commit created", kind: toastSuccess}
+	if !strings.Contains(m.View(), "Commit created") {
+		t.Fatalf("precondition: expected toast visible before expire")
+	}
+	model, _ := m.Update(toastExpireMsg{})
+	got := model.(*Model)
+	if got.toast.visible() {
+		t.Fatalf("expected toast cleared after toastExpireMsg, got %+v", got.toast)
+	}
+	if strings.Contains(got.View(), "Commit created") {
+		t.Fatalf("expected toast text removed from View, got:\n%s", got.View())
+	}
+}
+
 func TestUpdateOperationResultFailureSurfacesStderr(t *testing.T) {
 	m := newReadyTestModel()
 	m.screen = screenCommit
