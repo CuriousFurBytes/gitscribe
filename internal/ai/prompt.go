@@ -18,6 +18,30 @@ const conventionalTypes = `- feat: a new feature
 - revert: reverts a previous commit
 Type MUST be lowercase.`
 
+// styleGuidance maps an ai.style value to a richer description appended to
+// the prompt. Keep the keys in sync with config.AICommitStyles. Markers in
+// each guidance string are exercised by the tests in service_test.go, so
+// keep the wording recognisable when editing.
+var styleGuidance = map[string]string{
+	"formal":    "Tone: formal and neutral, professional voice.",
+	"neutral":   "Tone: neutral and matter-of-fact.",
+	"fun":       "Tone: light and playful, but still informative.",
+	"concise":   "Tone: concise. Keep the title short and imperative; omit the body unless strictly necessary.",
+	"detailed":  "Tone: detailed and thorough. Expand the body into bullet points covering motivation, behaviour change, and impact.",
+	"friendly":  "Tone: warm and plain-language, approachable to non-experts while staying accurate.",
+	"technical": "Tone: technical and precise. Use accurate jargon, exact identifiers, and reference the affected components.",
+	"changelog": "Tone: release-note. Write the subject as a user-facing changelog entry and structure the body under short headings or bullets (Added / Changed / Fixed) when more than one change is present.",
+}
+
+// messageFormatRules maps an ai.message_format value to format-specific
+// rules appended to the commit prompt. "gitmoji" is an alias of "emoji";
+// "plain" is an alias of "normal" and intentionally has no extra rules.
+var messageFormatRules = map[string]string{
+	"conventional": "- Format: <type>[optional scope]: <description>\n- The description after the colon starts with a lowercase letter\nConventional commit types:\n" + conventionalTypes,
+	"emoji":        "- Start with the single most appropriate gitmoji for the change",
+	"gitmoji":      "- Start with the single most appropriate gitmoji for the change",
+}
+
 func buildPrompt(req Request, mode string) string {
 	if req.Type == "pull_request" {
 		return buildPRPrompt(req)
@@ -40,14 +64,9 @@ func buildCommitPrompt(req Request, mode string) string {
 	b.WriteString("- Be specific: name the function, module, or behaviour that changed, not just the filename\n")
 	b.WriteString("- Do not start with a capital letter (unless the format requires it)\n")
 
-	switch req.MessageFormat {
-	case "conventional":
-		b.WriteString("- Format: <type>[optional scope]: <description>\n")
-		b.WriteString("- The description after the colon starts with a lowercase letter\n")
-		b.WriteString("Conventional commit types:\n")
-		b.WriteString(conventionalTypes + "\n")
-	case "emoji":
-		b.WriteString("- Start with the single most appropriate gitmoji for the change\n")
+	if rules, ok := messageFormatRules[req.MessageFormat]; ok {
+		b.WriteString(rules)
+		b.WriteString("\n")
 	}
 
 	if mode == "title_only" {
@@ -96,7 +115,11 @@ func appendSharedContext(b *strings.Builder, req Request) {
 		fmt.Fprintf(b, "Changed files: %s\n", strings.Join(req.Files, ", "))
 	}
 	if req.Style != "" && req.Style != "formal" {
-		fmt.Fprintf(b, "Tone: %s\n", req.Style)
+		if guidance, ok := styleGuidance[req.Style]; ok {
+			fmt.Fprintf(b, "%s\n", guidance)
+		} else {
+			fmt.Fprintf(b, "Tone: %s\n", req.Style)
+		}
 	}
 	if req.UserFeedback != "" {
 		fmt.Fprintf(b, "\n<user_feedback>\n%s\n</user_feedback>\n", req.UserFeedback)

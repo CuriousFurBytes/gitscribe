@@ -36,6 +36,93 @@ func TestBuildPromptEmojiFormat(t *testing.T) {
 	}
 }
 
+func TestBuildPromptGitmojiFormatMatchesEmoji(t *testing.T) {
+	req := Request{
+		MessageFormat: "gitmoji",
+		Diff:          "diff --git a/foo.go b/foo.go\n+line",
+	}
+	prompt := buildPrompt(req, "title_and_body")
+	if !strings.Contains(prompt, "gitmoji") {
+		t.Fatalf("expected gitmoji format to include gitmoji instructions, got:\n%s", prompt)
+	}
+}
+
+func TestBuildPromptPlainFormatHasNoFormatSpecificRule(t *testing.T) {
+	// "plain" is an alias of the previous "normal" format and must not
+	// inject conventional-commit or gitmoji rules into the prompt.
+	req := Request{
+		MessageFormat: "plain",
+		Diff:          "diff --git a/foo.go b/foo.go\n+line",
+	}
+	prompt := buildPrompt(req, "title_and_body")
+	if strings.Contains(prompt, "gitmoji") {
+		t.Fatalf("plain format must not request gitmoji, got:\n%s", prompt)
+	}
+	if strings.Contains(prompt, "Conventional commit types") {
+		t.Fatalf("plain format must not request conventional types, got:\n%s", prompt)
+	}
+}
+
+func TestBuildCommitPromptIncludesStyleGuidance(t *testing.T) {
+	cases := map[string]string{
+		"concise":   "concise",
+		"detailed":  "detailed",
+		"friendly":  "warm",
+		"technical": "technical",
+		"changelog": "release-note",
+	}
+	for style, marker := range cases {
+		req := Request{
+			Style: style,
+			Diff:  "diff --git a/foo.go b/foo.go\n+line",
+		}
+		prompt := buildPrompt(req, "title_and_body")
+		if !strings.Contains(strings.ToLower(prompt), marker) {
+			t.Fatalf("expected commit prompt for style %q to mention %q, got:\n%s", style, marker, prompt)
+		}
+	}
+}
+
+func TestBuildPRPromptIncludesStyleGuidance(t *testing.T) {
+	req := Request{
+		Type:  "pull_request",
+		Style: "detailed",
+		Diff:  "diff --git a/foo.go b/foo.go\n+line",
+	}
+	prompt := buildPrompt(req, "title_and_body")
+	if !strings.Contains(strings.ToLower(prompt), "detailed") {
+		t.Fatalf("expected PR prompt for detailed style to mention 'detailed', got:\n%s", prompt)
+	}
+}
+
+func TestStyleGuidanceCoversEveryAcceptedStyle(t *testing.T) {
+	// Single source of truth check: every value accepted by
+	// config.Validate must also have guidance wired into the prompt.
+	for _, style := range config.AICommitStyles {
+		if _, ok := styleGuidance[style]; !ok {
+			t.Fatalf("style %q is accepted by config but missing styleGuidance entry", style)
+		}
+	}
+}
+
+func TestMessageFormatRulesCoverEveryAcceptedFormat(t *testing.T) {
+	// "plain" and "normal" intentionally have no extra format rules, so
+	// they are allowed to be absent from messageFormatRules. Every other
+	// accepted format must have a rule defined.
+	formatsWithoutRules := map[string]bool{
+		"normal": true,
+		"plain":  true,
+	}
+	for _, format := range config.AIMessageFormats {
+		if formatsWithoutRules[format] {
+			continue
+		}
+		if _, ok := messageFormatRules[format]; !ok {
+			t.Fatalf("message_format %q is accepted by config but missing messageFormatRules entry", format)
+		}
+	}
+}
+
 func TestUnwrapCLIEnvelope(t *testing.T) {
 	inner := `{"title":"feat: x","body":"y"}`
 	envelope := `{"type":"result","subtype":"success","is_error":false,"result":` + `"` + strings.ReplaceAll(inner, `"`, `\"`) + `"}`
