@@ -219,3 +219,65 @@ func TestValidateAcceptsNewKeybindingActions(t *testing.T) {
 		t.Fatalf("unexpected validation error: %v", err)
 	}
 }
+
+func TestDefaultsCommitTitleMaxLength(t *testing.T) {
+	cfg := Defaults()
+	if cfg.Commit.TitleMaxLength != 72 {
+		t.Fatalf("Commit.TitleMaxLength = %d, want 72", cfg.Commit.TitleMaxLength)
+	}
+}
+
+func TestDefaultsPullRequestTitleMaxLength(t *testing.T) {
+	cfg := Defaults()
+	if cfg.PullRequest.TitleMaxLength != 72 {
+		t.Fatalf("PullRequest.TitleMaxLength = %d, want 72", cfg.PullRequest.TitleMaxLength)
+	}
+}
+
+func TestValidateRejectsTooSmallCommitTitleMaxLength(t *testing.T) {
+	cfg := Defaults()
+	cfg.Commit.TitleMaxLength = 5
+	if err := Validate(cfg); err == nil {
+		t.Fatalf("expected too-small commit.title_max_length to fail validation")
+	}
+}
+
+func TestValidateRejectsTooSmallPullRequestTitleMaxLength(t *testing.T) {
+	cfg := Defaults()
+	cfg.PullRequest.TitleMaxLength = 5
+	if err := Validate(cfg); err == nil {
+		t.Fatalf("expected too-small pull_request.title_max_length to fail validation")
+	}
+}
+
+func TestLoadOverridesTitleMaxLength(t *testing.T) {
+	tmp := t.TempDir()
+	t.Setenv("XDG_CONFIG_HOME", filepath.Join(tmp, "xdg"))
+
+	repoRoot := filepath.Join(tmp, "repo")
+	if err := os.MkdirAll(repoRoot, 0o755); err != nil {
+		t.Fatalf("mkdir repo root: %v", err)
+	}
+	configBody := `
+[commit]
+title_max_length = 50
+
+[pull_request]
+title_max_length = 100
+`
+	if err := os.WriteFile(filepath.Join(repoRoot, ".gitscribe.toml"), []byte(configBody), 0o644); err != nil {
+		t.Fatalf("write repo config: %v", err)
+	}
+
+	cfg, err := Load(LoadOptions{RepoRoot: repoRoot})
+	if err != nil {
+		t.Fatalf("Load() error = %v", err)
+	}
+
+	if cfg.Commit.TitleMaxLength != 50 {
+		t.Fatalf("Commit.TitleMaxLength = %d, want 50", cfg.Commit.TitleMaxLength)
+	}
+	if cfg.PullRequest.TitleMaxLength != 100 {
+		t.Fatalf("PullRequest.TitleMaxLength = %d, want 100", cfg.PullRequest.TitleMaxLength)
+	}
+}

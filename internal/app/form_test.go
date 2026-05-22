@@ -1,6 +1,11 @@
 package app
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/CuriousFurBytes/gitscribe/internal/config"
+	"github.com/CuriousFurBytes/gitscribe/internal/repo"
+)
 
 func TestNewFormDefaults(t *testing.T) {
 	form := newForm("title placeholder", "body placeholder", 72)
@@ -62,5 +67,30 @@ func TestNextFocusFallback(t *testing.T) {
 func TestPrevFocusFallback(t *testing.T) {
 	if got := prevFocus([]formFocus{focusTitle, focusBody}, formFocus(99)); got != focusTitle {
 		t.Fatalf("expected fallback to first, got %d", got)
+	}
+}
+
+func TestNewAppliesConfiguredTitleMaxLength(t *testing.T) {
+	cfg := config.Defaults()
+	cfg.Commit.TitleMaxLength = 50
+	cfg.PullRequest.TitleMaxLength = 80
+
+	m := New(cfg, repo.Info{Root: "/tmp/repo", GitDir: "/tmp/repo/.git", Branch: "main"}, Options{})
+
+	if m.commitForm.Title.CharLimit != 50 {
+		t.Fatalf("commit title CharLimit = %d, want 50", m.commitForm.Title.CharLimit)
+	}
+	if m.prForm.Title.CharLimit != 80 {
+		t.Fatalf("pr title CharLimit = %d, want 80", m.prForm.Title.CharLimit)
+	}
+}
+
+func TestPRTitleDefaultsTo72(t *testing.T) {
+	cfg := config.Defaults()
+
+	m := New(cfg, repo.Info{Root: "/tmp/repo", GitDir: "/tmp/repo/.git", Branch: "main"}, Options{})
+
+	if m.prForm.Title.CharLimit != 72 {
+		t.Fatalf("pr title CharLimit = %d, want 72 (default)", m.prForm.Title.CharLimit)
 	}
 }
