@@ -124,11 +124,35 @@ func TestPushCmd(t *testing.T) {
 	}
 }
 
+func TestPushCmdRefreshesRepo(t *testing.T) {
+	dir := mustGit(t)
+	msg := runCmd(t, pushCmd(dir))
+	result, ok := msg.(operationResultMsg)
+	if !ok {
+		t.Fatalf("expected operationResultMsg, got %T", msg)
+	}
+	if !result.refreshRepo {
+		t.Fatalf("push should request a repo refresh so ahead/behind counts update; got refreshRepo=false")
+	}
+}
+
 func TestPullCmd(t *testing.T) {
 	dir := mustGit(t)
 	msg := runCmd(t, pullCmd(dir))
 	if _, ok := msg.(operationResultMsg); !ok {
 		t.Fatalf("expected operationResultMsg")
+	}
+}
+
+func TestPullCmdRefreshesRepo(t *testing.T) {
+	dir := mustGit(t)
+	msg := runCmd(t, pullCmd(dir))
+	result, ok := msg.(operationResultMsg)
+	if !ok {
+		t.Fatalf("expected operationResultMsg, got %T", msg)
+	}
+	if !result.refreshRepo {
+		t.Fatalf("pull should request a repo refresh so ahead/behind counts update; got refreshRepo=false")
 	}
 }
 
