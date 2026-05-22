@@ -237,3 +237,24 @@ func TestUpdateOperationResultAutoCloseRefreshes(t *testing.T) {
 		t.Fatalf("expected return to main screen")
 	}
 }
+
+func TestUpdateOperationResultPRSuccessKeepsModalOpenForURL(t *testing.T) {
+	m := newReadyTestModel()
+	m.cfg.Logs.AutoCloseOnSuccess = true
+	m.screen = screenPR
+	prURL := "https://github.com/owner/repo/pull/9"
+	_, _ = m.Update(operationResultMsg{
+		title:           "Pull request",
+		output:          prURL,
+		success:         true,
+		successReturnTo: screenMain,
+		clearPR:         true,
+		alwaysModal:     true,
+	})
+	if !m.modal.visible {
+		t.Fatalf("expected modal to stay visible so URL is shown")
+	}
+	if !strings.Contains(m.modal.viewport.View(), prURL) {
+		t.Fatalf("expected modal viewport to contain PR URL, got %q", m.modal.viewport.View())
+	}
+}

@@ -128,11 +128,12 @@ type AIConfig struct {
 }
 
 type PullRequestConfig struct {
-	Enabled        bool     `toml:"enabled"`
-	DefaultBase    string   `toml:"default_base"`
-	TemplatePath   string   `toml:"template_path"`
-	GHArgs         []string `toml:"gh_args"`
-	TitleMaxLength int      `toml:"title_max_length"`
+	Enabled          bool     `toml:"enabled"`
+	DefaultBase      string   `toml:"default_base"`
+	TemplatePath     string   `toml:"template_path"`
+	GHArgs           []string `toml:"gh_args"`
+	TitleMaxLength   int      `toml:"title_max_length"`
+	OpenURLInBrowser bool     `toml:"open_url_in_browser"`
 }
 
 type HistoryConfig struct {
@@ -316,11 +317,12 @@ func Defaults() Config {
 			OutputFormat:      "json",
 		},
 		PullRequest: PullRequestConfig{
-			Enabled:        true,
-			DefaultBase:    "",
-			TemplatePath:   "",
-			GHArgs:         []string{"--assignee", "@me"},
-			TitleMaxLength: 72,
+			Enabled:          true,
+			DefaultBase:      "",
+			TemplatePath:     "",
+			GHArgs:           []string{"--assignee", "@me"},
+			TitleMaxLength:   72,
+			OpenURLInBrowser: false,
 		},
 		History: HistoryConfig{
 			MaxCommits: 200,

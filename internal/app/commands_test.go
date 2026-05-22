@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"errors"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -11,6 +12,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 
 	"github.com/CuriousFurBytes/gitscribe/internal/config"
+	"github.com/CuriousFurBytes/gitscribe/internal/execx"
 	"github.com/CuriousFurBytes/gitscribe/internal/git"
 )
 
@@ -477,5 +479,76 @@ func TestOpenFileInEditorCmdWithEmptyEditorUsesEnv(t *testing.T) {
 	cmd := openFileInEditorCmd(dir, "file.go", "")
 	if cmd == nil {
 		t.Fatalf("expected non-nil cmd")
+	}
+}
+
+func TestBuildPRResultMsgSuccessWithoutBrowserSetsAlwaysModal(t *testing.T) {
+	result := execx.Result{Stdout: "https://github.com/owner/repo/pull/1\n"}
+	var opened string
+	openFn := func(url string) error {
+		opened = url
+		return nil
+	}
+	msg := buildPRResultMsg(result, nil, false, openFn)
+	if !msg.success {
+		t.Fatalf("expected success")
+	}
+	if !msg.alwaysModal {
+		t.Fatalf("expected alwaysModal=true when not opening browser")
+	}
+	if opened != "" {
+		t.Fatalf("expected browser not to be opened, got %q", opened)
+	}
+	if !msg.clearPR {
+		t.Fatalf("expected clearPR=true on success")
+	}
+}
+
+func TestBuildPRResultMsgSuccessWithBrowserOpensURL(t *testing.T) {
+	result := execx.Result{Stdout: "https://github.com/owner/repo/pull/1\n"}
+	var opened string
+	openFn := func(url string) error {
+		opened = url
+		return nil
+	}
+	msg := buildPRResultMsg(result, nil, true, openFn)
+	if !msg.success {
+		t.Fatalf("expected success")
+	}
+	if opened != "https://github.com/owner/repo/pull/1" {
+		t.Fatalf("opened = %q, want PR URL", opened)
+	}
+}
+
+func TestBuildPRResultMsgFailureDoesNotOpenOrForceModal(t *testing.T) {
+	result := execx.Result{Stderr: "gh pr create failed"}
+	var opened string
+	openFn := func(url string) error {
+		opened = url
+		return nil
+	}
+	msg := buildPRResultMsg(result, errors.New("boom"), true, openFn)
+	if msg.success {
+		t.Fatalf("expected failure")
+	}
+	if opened != "" {
+		t.Fatalf("expected no browser open on failure, got %q", opened)
+	}
+	if msg.alwaysModal {
+		t.Fatalf("alwaysModal should not be forced on failure")
+	}
+	if msg.clearPR {
+		t.Fatalf("clearPR must remain false on failure")
+	}
+}
+
+func TestBuildPRResultMsgSuccessWithoutURLStillKeepsModalOpen(t *testing.T) {
+	result := execx.Result{Stdout: "weird gh output without url\n"}
+	msg := buildPRResultMsg(result, nil, true, func(string) error { return nil })
+	if !msg.success {
+		t.Fatalf("expected success")
+	}
+	if !msg.alwaysModal {
+		t.Fatalf("expected alwaysModal=true when no URL was found even with browser=true")
 	}
 }
