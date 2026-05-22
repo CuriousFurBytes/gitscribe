@@ -250,6 +250,36 @@ func TestValidateRejectsTooSmallPullRequestTitleMaxLength(t *testing.T) {
 	}
 }
 
+func TestDefaultsPullRequestOpenURLInBrowserIsFalse(t *testing.T) {
+	cfg := Defaults()
+	if cfg.PullRequest.OpenURLInBrowser {
+		t.Fatalf("expected PullRequest.OpenURLInBrowser default false, got true")
+	}
+}
+
+func TestLoadParsesPullRequestOpenURLInBrowser(t *testing.T) {
+	tmp := t.TempDir()
+	t.Setenv("XDG_CONFIG_HOME", filepath.Join(tmp, "xdg"))
+
+	repoRoot := filepath.Join(tmp, "repo")
+	if err := os.MkdirAll(repoRoot, 0o755); err != nil {
+		t.Fatalf("mkdir repo root: %v", err)
+	}
+	body := "[pull_request]\nopen_url_in_browser = true\n"
+	if err := os.WriteFile(filepath.Join(repoRoot, ".gitscribe.toml"), []byte(body), 0o644); err != nil {
+		t.Fatalf("write repo config: %v", err)
+	}
+
+	cfg, err := Load(LoadOptions{RepoRoot: repoRoot})
+	if err != nil {
+		t.Fatalf("Load() error = %v", err)
+	}
+
+	if !cfg.PullRequest.OpenURLInBrowser {
+		t.Fatalf("expected PullRequest.OpenURLInBrowser = true after override")
+	}
+}
+
 func TestLoadOverridesTitleMaxLength(t *testing.T) {
 	tmp := t.TempDir()
 	t.Setenv("XDG_CONFIG_HOME", filepath.Join(tmp, "xdg"))

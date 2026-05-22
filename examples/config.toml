@@ -87,6 +87,7 @@ default_base = ""
 template_path = ""
 gh_args = ["--assignee", "@me"]
 title_max_length = 72             # max chars for PR title (min 20)
+open_url_in_browser = false       # if true, open the PR URL in the default browser after creation; otherwise keep the success modal open so the URL stays visible
 
 [history]
 max_commits = 200

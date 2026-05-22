@@ -257,16 +257,39 @@ func commitCmd(repoRoot string, title string, body string, noVerify bool) tea.Cm
 func createPRCmd(repoRoot string, cfg config.PullRequestConfig, title string, body string) tea.Cmd {
 	return withTimeout(90*time.Second, func(ctx context.Context) tea.Msg {
 		result, err := ghcli.CreatePR(ctx, repoRoot, cfg, strings.TrimSpace(title), strings.TrimRight(body, "\n"))
-		return operationResultMsg{
-			title:           "Pull request",
-			output:          result.Output(),
-			success:         err == nil,
-			successReturnTo: screenMain,
-			failureReturnTo: screenPR,
-			clearPR:         err == nil,
-			err:             err,
-		}
+		return buildPRResultMsg(result, err, cfg.OpenURLInBrowser, ghcli.OpenInBrowser)
 	})
+}
+
+// buildPRResultMsg shapes the operation message for a `gh pr create` run.
+// On success it keeps the modal open so the URL is visible, unless
+// openInBrowser is true and a URL was found — then it launches the
+// browser and lets the normal auto-close logic decide what to do with
+// the modal.
+func buildPRResultMsg(result execx.Result, err error, openInBrowser bool, openURL func(string) error) operationResultMsg {
+	success := err == nil
+	msg := operationResultMsg{
+		title:           "Pull request",
+		output:          result.Output(),
+		success:         success,
+		successReturnTo: screenMain,
+		failureReturnTo: screenPR,
+		clearPR:         success,
+		err:             err,
+	}
+	if !success {
+		return msg
+	}
+	url := ghcli.ExtractPRURL(result.Output())
+	if openInBrowser && url != "" {
+		if openErr := openURL(url); openErr != nil {
+			logger.Error("open PR URL in browser", "url", url, "err", openErr)
+			msg.alwaysModal = true
+		}
+		return msg
+	}
+	msg.alwaysModal = true
+	return msg
 }
 
 func aiCmd(repoRoot string, status git.RepoStatus, cfg config.AIConfig, current screen, feedback string) tea.Cmd {
